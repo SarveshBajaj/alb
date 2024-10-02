@@ -27,7 +27,7 @@ public class RequestForwarderService {
     @Autowired
     private BackendServerConfig backendServerConfig;
 
-    public void forwardRequest(HttpServletRequest request, HttpServletResponse response) {
+    public boolean forwardRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
             String backendUrl = "http://" + backendServerConfig.getHost() + ":" + backendServerConfig.getPort() + request.getRequestURI();
             HttpHeaders headers = new HttpHeaders();
@@ -47,20 +47,23 @@ public class RequestForwarderService {
             // Convert request method from String to HttpMethod
             HttpMethod httpMethod = HttpMethod.valueOf((request.getMethod()));
 
-            // Make sure the method is valid
-            if (httpMethod == null) {
-                throw new IllegalArgumentException("Invalid HTTP method: " + request.getMethod());
-            }
-
             // Use HttpMethod instead of String for the method
             ResponseEntity<byte[]> backendResponse = restTemplate.exchange(backendUrl, httpMethod, httpEntity, byte[].class);
 
             response.setStatus(backendResponse.getStatusCode().value());
-            response.setHeader("Content-Type", backendResponse.getHeaders().getContentType().toString());
+            // Set all headers in the response
+            backendResponse.getHeaders().forEach((headerName, headerValues) -> {
+                for (String value : headerValues) {
+                    response.addHeader(headerName, value);
+                }
+            });
+            // Write the body content from the backend response to the original response
             response.getOutputStream().write(backendResponse.getBody());
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             // Handle exceptions appropriately
         }
+        return false;
     }
 }
