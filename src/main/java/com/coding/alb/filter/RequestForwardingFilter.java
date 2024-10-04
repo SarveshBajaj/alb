@@ -1,4 +1,4 @@
-package com.coding.alb;
+package com.coding.alb.filter;
 
 import com.coding.alb.service.RequestForwarderService;
 import jakarta.servlet.*;

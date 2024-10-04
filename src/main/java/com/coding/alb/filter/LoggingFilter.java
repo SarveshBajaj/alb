@@ -1,4 +1,4 @@
-package com.coding.alb;
+package com.coding.alb.filter;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 @Component
-@Order(1) // chain filtering, I want 1st filter to be this - higher ordering means later.
+@Order(2) // chain filtering, I want 1st filter to be this - higher ordering means later.
 public class LoggingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
