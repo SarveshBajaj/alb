@@ -1,17 +1,33 @@
 package com.coding.alb.configs;
 
-import lombok.Getter;
+
+import javafx.util.Pair;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
-@Getter
 @Setter
 public class BackendServerConfig {
-    @Value("${backend.server.host}")
-    private String host;
+    private List<Pair<String, Integer>> hostsAndPorts;
+    private int serverCount;
+    private int counter;
 
-    @Value("${backend.server.port}")
-    private int port;
+    public Pair<String, Integer> getHostAndPort() {
+        return roundRobin();
+    }
+
+    public BackendServerConfig() {
+        this.hostsAndPorts = new ArrayList<>(Arrays.asList(new Pair<>("localhost", 8080), new Pair<>("localhost", 8081)));
+        this.serverCount= hostsAndPorts.size();
+        this.counter = -1;
+    }
+
+    private Pair<String, Integer> roundRobin() {
+        counter++;
+        return hostsAndPorts.get(counter % serverCount);
+    }
 }

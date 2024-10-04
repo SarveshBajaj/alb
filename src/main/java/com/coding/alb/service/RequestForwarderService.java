@@ -3,6 +3,7 @@ package com.coding.alb.service;
 import com.coding.alb.configs.BackendServerConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +30,8 @@ public class RequestForwarderService {
 
     public boolean forwardRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
-            String backendUrl = "http://" + backendServerConfig.getHost() + ":" + backendServerConfig.getPort() + request.getRequestURI();
+            Pair<String, Integer> hostAndPort = backendServerConfig.getHostAndPort();
+            String backendUrl = "http://" + hostAndPort.getKey() + ":" + hostAndPort.getValue() + request.getRequestURI();
             HttpHeaders headers = new HttpHeaders();
 
             // Convert the Enumeration to a List and then stream it
