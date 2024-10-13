@@ -4,6 +4,7 @@ import com.coding.alb.configs.BackendServerConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import javafx.util.Pair;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class RequestForwarderService {
 
     @Autowired
@@ -32,6 +34,7 @@ public class RequestForwarderService {
         try {
             Pair<String, Integer> hostAndPort = backendServerConfig.getHostAndPort();
             String backendUrl = "http://" + hostAndPort.getKey() + ":" + hostAndPort.getValue() + request.getRequestURI();
+            log.info("backendUrl - {}", backendUrl);
             HttpHeaders headers = new HttpHeaders();
 
             // Convert the Enumeration to a List and then stream it
@@ -59,8 +62,10 @@ public class RequestForwarderService {
                     response.addHeader(headerName, value);
                 }
             });
-            // Write the body content from the backend response to the original response
-            response.getOutputStream().write(backendResponse.getBody());
+            if (backendResponse.getBody() != null) { //304 handling
+                response.getOutputStream().write(backendResponse.getBody());
+            }
+
             return true;
         } catch (IOException e) {
             e.printStackTrace();

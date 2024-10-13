@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Configuration
 @Setter
@@ -26,7 +27,7 @@ public class BackendServerConfig {
             throw new IllegalArgumentException("Hosts and ports list must have the same size.");
         }
 
-        this.hostsAndPorts = new ArrayList<>();
+        this.hostsAndPorts = new CopyOnWriteArrayList<>();
         for (int i = 0; i < hosts.size(); i++) {
             this.hostsAndPorts.add(new Pair<>(hosts.get(i), ports.get(i)));
         }
@@ -38,8 +39,20 @@ public class BackendServerConfig {
         return serverSelectionStrategy.selectServer(hostsAndPorts);
     }
 
+    public void removeHostAndPort(Pair<String, Integer> hostAndPort) {
+        hostsAndPorts.remove(hostAndPort); //O(n)
+    }
+
+    public void addHostAndPort(Pair<String, Integer> hostAndPort) {
+        hostsAndPorts.add(hostAndPort);
+    }
+
     // Setter to change the strategy at runtime
     public void setServerSelectionStrategy(ServerSelectionStrategy newStrategy) {
         this.serverSelectionStrategy = newStrategy;
+    }
+
+    public List<Pair<String, Integer>> getAllHostsAndPorts() {
+        return hostsAndPorts;
     }
 }
