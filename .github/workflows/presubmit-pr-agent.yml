@@ -1,0 +1,29 @@
+name: Presubmit.ai
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, review_requested, synchronize]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.OPENAI_KEY }}" ]; then
+            echo "Error: OPENAI_KEY secret is not configured"
+            exit 1
+          fi
+
+      - uses: presubmit/ai-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLM_API_KEY: ${{ secrets.OPENAI_KEY }}
+          LLM_MODEL: "gpt-4.1-mini"
